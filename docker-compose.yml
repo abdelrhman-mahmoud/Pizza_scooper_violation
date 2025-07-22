@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    hostname: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+
+  detection-service:
+    build: ./microservices/detection-service
+    ports:
+      - "5000:5000" # Example port, adjust as needed
+    depends_on:
+      - rabbitmq
+
+  violation-service:
+    build: ./microservices/violation-service
+    depends_on:
+      - rabbitmq
+
+  streaming-service:
+    build: ./microservices/streaming-service
+    ports:
+      - "8000:8000" # Example port, adjust as needed
+    depends_on:
+      - rabbitmq
+
+volumes:
+  rabbitmq_data:

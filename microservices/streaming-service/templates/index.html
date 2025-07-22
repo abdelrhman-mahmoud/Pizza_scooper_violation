@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Pizza Store Scooper Violation Detection</title>
+  <style>
+    body { font-family: sans-serif; background: #f0f0f0; text-align: center; padding: 20px; }
+    .video { border: 3px solid #ccc; margin-top: 20px; }
+    .info { margin-top: 20px; font-size: 1.2em; }
+    .violation { color: red; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <h1>Pizza Store Scooper Violation Detection</h1>
+  <img src="{{ url_for('video_feed') }}" class="video" width="720">
+  <div class="info">
+    <p>Timestamp: {{ timestamp }}</p>
+    <p>⚠Violations: <span class="{% if violations > 0 %}violation{% endif %}">{{ violations }}</span></p>
+  </div>
+</body>
+</html>
