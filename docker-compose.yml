@@ -7,27 +7,58 @@ services:
     ports:
       - "5672:5672"
       - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 30s
+      timeout: 30s
+      retries: 3
 
   detection-service:
     build: ./microservices/detection-service
     ports:
-      - "5000:5000" # Example port, adjust as needed
+      - "5000:5000"
     depends_on:
-      - rabbitmq
+      rabbitmq:
+        condition: service_healthy
+    environment:
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_USER=admin
+      - RABBITMQ_PASS=password
+      - YOLO_CONFIG_DIR=/tmp
+    volumes:
+      - ./dataset:/dataset  # Mount your local dataset directory
+    restart: unless-stopped
 
   violation-service:
     build: ./microservices/violation-service
     depends_on:
-      - rabbitmq
+      rabbitmq:
+        condition: service_healthy
+    environment:
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_USER=admin
+      - RABBITMQ_PASS=password
+      - YOLO_CONFIG_DIR=/tmp
+    restart: unless-stopped
 
   streaming-service:
     build: ./microservices/streaming-service
     ports:
-      - "8000:8000" # Example port, adjust as needed
+      - "8000:8000"
     depends_on:
-      - rabbitmq
+      rabbitmq:
+        condition: service_healthy
+    environment:
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_USER=admin
+      - RABBITMQ_PASS=password
+      - YOLO_CONFIG_DIR=/tmp
+    restart: unless-stopped
 
 volumes:
   rabbitmq_data:
